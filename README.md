@@ -2,7 +2,7 @@ Tuần 1 (03/11 - 09/11): Hoàn thiện lõi hệ thống
 
 
  1. Chạy thử phần vừa làm: bấm nút Blogger Hải Nam, kiểm tra mục Trang quản trị, trang admin.html, đăng ký tài khoản mới có hiện trong admin không. Sửa lỗi phát sinh.
- 2. Chạy script va_app_js.py (nếu chưa chạy) và kiểm tra đồng bộ chuyến đi lên SQL Server.
+ 2. Chạy script va_app_js.py và kiểm tra đồng bộ chuyến đi lên SQL Server.
  3. Đăng nhập hoàn toàn qua SQL Server: khóa tài khoản thì chặn hẳn việc đăng nhập trên web (bước quan trọng nhất để admin có tác dụng thật).
  4. Cho AI đọc địa điểm từ SQL Server: admin thêm địa điểm thì AI tạo lịch trình dùng được ngay (cần gửi mình data.js và ai-generator.js).
 
