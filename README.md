@@ -19,7 +19,8 @@ Tuần 3 (17/11 - 23/11): Kiểm thử và tài liệu kỹ thuật
  1. Test toàn bộ chức năng theo checklist: đăng ký, đăng nhập, tạo lịch trình (tay và AI), bản đồ, ngân sách, kéo thả, xuất/nhập JSON, admin.
  2. Sửa lỗi giao diện, kiểm tra trên điện thoại và trình duyệt khác.
  3. Viết README: cách cài, cách chạy, tài khoản mẫu, cấu trúc thư mục.
- 4. Vẽ sơ đồ: ERD (CSDL), sơ đồ chức năng, use case, luồng hoạt động của AI (4 giai đoạn). 
+ 4. Vẽ sơ đồ: ERD (CSDL), sơ đồ chức năng, use case, luồng hoạt động của AI (4 giai đoạn).
+
 Tuần 4 (24/11 - 30/11): Báo cáo và bảo vệ
 
  1. Viết báo cáo (có thể bắt đầu sớm từ tuần 3, dùng ảnh chụp đã ghi lại).
