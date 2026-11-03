@@ -5,7 +5,6 @@ Tuần 1 (03/11 - 09/11): Hoàn thiện lõi hệ thống
  2. Chạy script va_app_js.py (nếu chưa chạy) và kiểm tra đồng bộ chuyến đi lên SQL Server.
  3. Đăng nhập hoàn toàn qua SQL Server: khóa tài khoản thì chặn hẳn việc đăng nhập trên web (bước quan trọng nhất để admin có tác dụng thật).
  4. Cho AI đọc địa điểm từ SQL Server: admin thêm địa điểm thì AI tạo lịch trình dùng được ngay (cần gửi mình data.js và ai-generator.js).
- 5. Hỏi thầy cô yêu cầu báo cáo: số trang, có cần ERD, sơ đồ use case, kiểm thử, slide hay không.
 
 Tuần 2 (10/11 - 16/11): Hoàn thiện admin và độ ổn định
 
