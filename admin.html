@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VivuPlan - Quản trị</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Be Vietnam Pro', system-ui, sans-serif; }
+    dialog::backdrop { background: rgba(15, 23, 42, .5); }
+    .tab-on { background: #fff; color: #0369a1; box-shadow: 0 1px 2px rgba(0,0,0,.08); font-weight: 700; }
+    th { white-space: nowrap; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800">
+
+<!-- Thanh trên cùng -->
+<header class="bg-white border-b border-slate-200">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <div>
+      <h1 class="text-lg font-bold text-sky-700">VivuPlan: Trang quản trị</h1>
+      <p class="text-xs text-slate-500">Quản lý người đăng ký, lịch trình và địa điểm du lịch</p>
+    </div>
+    <div class="flex items-center gap-2">
+      <a href="index.html" class="px-3 py-1.5 rounded-xl border border-slate-200 text-sm hover:bg-slate-100">Về trang chủ</a>
+      <button id="btnLogout" class="hidden px-3 py-1.5 rounded-xl bg-slate-800 text-white text-sm hover:bg-slate-700">Đăng xuất</button>
+    </div>
+  </div>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-6">
+
+  <!-- Đăng nhập admin -->
+  <section id="loginBox" class="hidden max-w-sm mx-auto bg-white rounded-3xl border border-slate-200 p-6 space-y-4">
+    <h2 class="text-base font-bold">Đăng nhập quản trị viên</h2>
+    <form id="loginForm" class="space-y-3">
+      <input id="lgEmail" type="email" required placeholder="Email" value="admin@vivuplan.vn"
+             class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
+      <input id="lgPass" type="password" required placeholder="Mật khẩu"
+             class="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
+      <p id="lgMsg" class="text-xs text-rose-600 min-h-4"></p>
+      <button class="w-full py-2 rounded-xl bg-sky-600 text-white font-bold text-sm hover:bg-sky-700">Đăng nhập</button>
+    </form>
+  </section>
+
+  <!-- Nội dung quản trị -->
+  <section id="adminMain" class="hidden space-y-6">
+
+    <div id="stats" class="grid grid-cols-2 md:grid-cols-4 gap-3"></div>
+
+    <div class="inline-flex p-1 bg-slate-200/70 rounded-xl text-sm text-slate-600 gap-1">
+      <button class="tab px-4 py-1.5 rounded-lg tab-on" data-tab="users">Người đăng ký</button>
+      <button class="tab px-4 py-1.5 rounded-lg" data-tab="trips">Lịch trình</button>
+      <button class="tab px-4 py-1.5 rounded-lg" data-tab="places">Địa điểm</button>
+    </div>
+
+    <!-- Tab: người đăng ký -->
+    <div id="tab-users" class="bg-white rounded-3xl border border-slate-200 p-4 space-y-3">
+      <input id="searchUser" placeholder="Tìm theo tên hoặc email..."
+             class="w-full md:w-80 px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="text-slate-500 border-b border-slate-200">
+            <tr><th class="py-2 pr-3">Họ tên</th><th class="pr-3">Email</th><th class="pr-3">Phong cách</th>
+                <th class="pr-3">Số chuyến</th><th class="pr-3">Ngày đăng ký</th><th class="pr-3">Đăng nhập gần nhất</th>
+                <th class="pr-3">Trạng thái</th><th></th></tr>
+          </thead>
+          <tbody id="userBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: lịch trình -->
+    <div id="tab-trips" class="hidden bg-white rounded-3xl border border-slate-200 p-4 space-y-3">
+      <p class="text-xs text-slate-500">Chỉ hiện các chuyến đi đã đồng bộ lên SQL Server (người dùng cần đăng nhập khi tạo hoặc sửa chuyến đi).</p>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="text-slate-500 border-b border-slate-200">
+            <tr><th class="py-2 pr-3">Tên chuyến</th><th class="pr-3">Điểm đến</th><th class="pr-3">Chủ chuyến</th>
+                <th class="pr-3">Thời gian</th><th class="pr-3">Số ngày</th><th class="pr-3">Số điểm</th>
+                <th class="pr-3">Ngân sách</th><th class="pr-3">Đã lên kế hoạch</th><th></th></tr>
+          </thead>
+          <tbody id="tripBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Tab: địa điểm -->
+    <div id="tab-places" class="hidden bg-white rounded-3xl border border-slate-200 p-4 space-y-3">
+      <div class="flex items-center justify-between gap-3">
+        <input id="searchPlace" placeholder="Tìm theo tên địa điểm..."
+               class="w-full md:w-80 px-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-none focus:ring-2 focus:ring-sky-400">
+        <button id="btnAddPlace" class="px-4 py-2 rounded-xl bg-sky-600 text-white font-bold text-sm hover:bg-sky-700 whitespace-nowrap">Thêm địa điểm</button>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="text-slate-500 border-b border-slate-200">
+            <tr><th class="py-2 pr-3">Tên</th><th class="pr-3">Danh mục</th><th class="pr-3">Địa chỉ</th>
+                <th class="pr-3">Chi phí</th><th class="pr-3">Thời lượng</th><th class="pr-3">Đánh giá</th><th></th></tr>
+          </thead>
+          <tbody id="placeBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- Form thêm / sửa địa điểm -->
+<dialog id="placeDialog" class="rounded-3xl p-0 w-full max-w-lg">
+  <form id="placeForm" class="p-6 space-y-3">
+    <h3 id="placeTitle" class="text-base font-bold">Thêm địa điểm</h3>
+    <input type="hidden" id="pId">
+    <label class="block text-xs font-semibold text-slate-600">Tên địa điểm
+      <input id="pName" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></label>
+    <label class="block text-xs font-semibold text-slate-600">Địa chỉ
+      <input id="pAddress" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></label>
+    <div class="grid grid-cols-2 gap-3">
+      <label class="block text-xs font-semibold text-slate-600">Điểm đến
+        <select id="pDest" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></select></label>
+      <label class="block text-xs font-semibold text-slate-600">Danh mục
+        <select id="pCat" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></select></label>
+      <label class="block text-xs font-semibold text-slate-600">Vĩ độ (lat)
+        <input id="pLat" type="number" step="any" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></label>
+      <label class="block text-xs font-semibold text-slate-600">Kinh độ (lng)
+        <input id="pLng" type="number" step="any" required class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></label>
+      <label class="block text-xs font-semibold text-slate-600">Chi phí (đ)
+        <input id="pCost" type="number" min="0" value="0" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></label>
+      <label class="block text-xs font-semibold text-slate-600">Thời lượng (phút)
+        <input id="pDur" type="number" min="10" value="90" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></label>
+      <label class="block text-xs font-semibold text-slate-600">Đánh giá (1 - 5)
+        <input id="pRate" type="number" min="1" max="5" step="0.1" value="4.5" class="mt-1 w-full px-3 py-2 rounded-xl border border-slate-300 text-sm font-normal"></label>
+    </div>
+    <p id="pMsg" class="text-xs text-rose-600 min-h-4"></p>
+    <div class="flex justify-end gap-2">
+      <button type="button" id="btnCancelPlace" class="px-4 py-2 rounded-xl border border-slate-200 text-sm hover:bg-slate-100">Hủy</button>
+      <button class="px-4 py-2 rounded-xl bg-sky-600 text-white font-bold text-sm hover:bg-sky-700">Lưu địa điểm</button>
+    </div>
+  </form>
+</dialog>
+
+<script>
+  // Dùng đúng tên máy đang mở trang để cookie đăng nhập hoạt động
+  const API = `http://${location.hostname}:5001/api`;
+  let users = [], places = [], meta = { destinations: [], categories: [] };
+
+  const $ = id => document.getElementById(id);
+  const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  const money = n => Number(n || 0).toLocaleString('vi-VN') + ' đ';
+  const when = s => s ? String(s).slice(0, 16) : 'Chưa có';
+
+  async function api(path, method = 'GET', body = null) {
+    const res = await fetch(API + path, {
+      method, credentials: 'include',
+      headers: { 'Content-Type': 'application/json' },
+      body: body ? JSON.stringify(body) : null
+    });
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  // ---------- Khởi động: kiểm tra đã đăng nhập admin chưa ----------
+  async function start() {
+    try {
+      const r = await api('/me');
+      if (r.data.logged_in && r.data.role === 'admin') return showAdmin();
+    } catch (e) {
+      $('loginBox').classList.remove('hidden');
+      $('lgMsg').textContent = 'Không kết nối được backend. Hãy chạy: python api.py (cổng 5001).';
+      return;
+    }
+    $('loginBox').classList.remove('hidden');
+  }
+
+  $('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    $('lgMsg').textContent = '';
+    try {
+      const r = await api('/login', 'POST', { email: $('lgEmail').value, password: $('lgPass').value });
+      if (!r.ok) { $('lgMsg').textContent = r.data.error || 'Đăng nhập thất bại'; return; }
+      if (r.data.role !== 'admin') {
+        await api('/logout', 'POST');
+        $('lgMsg').textContent = 'Tài khoản này không phải quản trị viên.';
+        return;
+      }
+      showAdmin();
+    } catch (err) {
+      $('lgMsg').textContent = 'Không kết nối được backend. Hãy chạy: python api.py';
+    }
+  });
+
+  $('btnLogout').addEventListener('click', async () => {
+    await api('/logout', 'POST');
+    location.reload();
+  });
+
+  async function showAdmin() {
+    $('loginBox').classList.add('hidden');
+    $('adminMain').classList.remove('hidden');
+    $('btnLogout').classList.remove('hidden');
+    meta = (await api('/admin/meta')).data;
+    $('pDest').innerHTML = meta.destinations.map(d => `<option value="${esc(d.id)}">${esc(d.name)}</option>`).join('');
+    $('pCat').innerHTML = meta.categories.map(c => `<option value="${esc(c.id)}">${esc(c.name)}</option>`).join('');
+    loadAll();
+  }
+
+  function loadAll() { loadStats(); loadUsers(); loadTrips(); loadPlaces(); }
+
+  // ---------- Thống kê ----------
+  async function loadStats() {
+    const s = (await api('/admin/stats')).data;
+    const card = (n, label) => `<div class="bg-white rounded-2xl border border-slate-200 p-4">
+      <div class="text-2xl font-bold text-sky-700">${n}</div><div class="text-xs text-slate-500 mt-0.5">${label}</div></div>`;
+    $('stats').innerHTML = card(s.users, 'Người đăng ký') + card(s.new_today, 'Đăng ký hôm nay')
+                         + card(s.trips, 'Lịch trình đã lưu') + card(s.places, 'Địa điểm du lịch');
+  }
+
+  // ---------- Người đăng ký ----------
+  async function loadUsers() { users = (await api('/admin/users')).data; renderUsers(); }
+
+  function renderUsers() {
+    const k = $('searchUser').value.trim().toLowerCase();
+    const list = users.filter(u => !k || u.full_name.toLowerCase().includes(k) || u.email.toLowerCase().includes(k));
+    $('userBody').innerHTML = list.map(u => `
+      <tr class="border-b border-slate-100">
+        <td class="py-2 pr-3 font-semibold">${esc(u.full_name)}${u.role === 'admin' ? ' <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-100 text-sky-700">admin</span>' : ''}</td>
+        <td class="pr-3">${esc(u.email)}</td>
+        <td class="pr-3">${esc(u.preferred_style || '—')}</td>
+        <td class="pr-3">${u.trips_count}</td>
+        <td class="pr-3">${when(u.created_at)}</td>
+        <td class="pr-3">${when(u.last_login)}</td>
+        <td class="pr-3">${u.is_active
+            ? '<span class="px-2 py-0.5 rounded-full text-xs bg-emerald-100 text-emerald-700">Hoạt động</span>'
+            : '<span class="px-2 py-0.5 rounded-full text-xs bg-slate-200 text-slate-600">Đã khóa</span>'}</td>
+        <td class="text-right whitespace-nowrap">${u.role === 'admin' ? '' : `
+          <button data-act="toggleUser" data-id="${esc(u.id)}" class="px-2 py-1 rounded-lg text-xs bg-amber-100 text-amber-800 hover:bg-amber-200">${u.is_active ? 'Khóa' : 'Mở khóa'}</button>
+          <button data-act="delUser" data-id="${esc(u.id)}" class="px-2 py-1 rounded-lg text-xs bg-rose-100 text-rose-700 hover:bg-rose-200">Xóa</button>`}</td>
+      </tr>`).join('') || '<tr><td colspan="8" class="py-6 text-center text-slate-400">Chưa có người dùng nào</td></tr>';
+  }
+  $('searchUser').addEventListener('input', renderUsers);
+
+  // ---------- Lịch trình ----------
+  async function loadTrips() {
+    const trips = (await api('/admin/trips')).data;
+    $('tripBody').innerHTML = trips.map(t => `
+      <tr class="border-b border-slate-100">
+        <td class="py-2 pr-3 font-semibold">${esc(t.title)}</td>
+        <td class="pr-3">${esc(t.destination)}</td>
+        <td class="pr-3">${esc(t.owner)}</td>
+        <td class="pr-3 whitespace-nowrap">${esc(t.start_date)} - ${esc(t.end_date)}</td>
+        <td class="pr-3">${t.days_count}</td>
+        <td class="pr-3">${t.places_count}</td>
+        <td class="pr-3">${money(t.budget)}</td>
+        <td class="pr-3">${money(t.total_cost)}</td>
+        <td class="text-right"><button data-act="delTrip" data-id="${esc(t.id)}" class="px-2 py-1 rounded-lg text-xs bg-rose-100 text-rose-700 hover:bg-rose-200">Xóa</button></td>
+      </tr>`).join('') || '<tr><td colspan="9" class="py-6 text-center text-slate-400">Chưa có lịch trình nào được đồng bộ</td></tr>';
+  }
+
+  // ---------- Địa điểm ----------
+  async function loadPlaces() { places = (await api('/admin/places')).data; renderPlaces(); }
+
+  function renderPlaces() {
+    const k = $('searchPlace').value.trim().toLowerCase();
+    const list = places.filter(p => !k || p.name.toLowerCase().includes(k));
+    $('placeBody').innerHTML = list.map(p => `
+      <tr class="border-b border-slate-100">
+        <td class="py-2 pr-3 font-semibold">${esc(p.name)}</td>
+        <td class="pr-3">${esc(p.category)}</td>
+        <td class="pr-3">${esc(p.address)}</td>
+        <td class="pr-3 whitespace-nowrap">${money(p.cost)}</td>
+        <td class="pr-3">${p.duration_minutes} phút</td>
+        <td class="pr-3">${p.rating}</td>
+        <td class="text-right whitespace-nowrap">
+          <button data-act="editPlace" data-id="${esc(p.id)}" class="px-2 py-1 rounded-lg text-xs bg-sky-100 text-sky-700 hover:bg-sky-200">Sửa</button>
+          <button data-act="delPlace" data-id="${esc(p.id)}" class="px-2 py-1 rounded-lg text-xs bg-rose-100 text-rose-700 hover:bg-rose-200">Xóa</button>
+        </td>
+      </tr>`).join('') || '<tr><td colspan="7" class="py-6 text-center text-slate-400">Chưa có địa điểm nào</td></tr>';
+  }
+  $('searchPlace').addEventListener('input', renderPlaces);
+
+  function openPlaceForm(p) {
+    $('placeTitle').textContent = p ? 'Sửa địa điểm' : 'Thêm địa điểm';
+    $('pId').value = p ? p.id : '';
+    $('pName').value = p ? p.name : '';
+    $('pAddress').value = p ? p.address : '';
+    $('pDest').value = p ? p.destination_id : (meta.destinations[0] || {}).id;
+    $('pCat').value = p ? p.category_id : (meta.categories[0] || {}).id;
+    $('pLat').value = p ? p.lat : '';
+    $('pLng').value = p ? p.lng : '';
+    $('pCost').value = p ? p.cost : 0;
+    $('pDur').value = p ? p.duration_minutes : 90;
+    $('pRate').value = p ? p.rating : 4.5;
+    $('pMsg').textContent = '';
+    $('placeDialog').showModal();
+  }
+  $('btnAddPlace').addEventListener('click', () => openPlaceForm(null));
+  $('btnCancelPlace').addEventListener('click', () => $('placeDialog').close());
+
+  $('placeForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const body = {
+      name: $('pName').value, address: $('pAddress').value,
+      destination_id: $('pDest').value, category_id: $('pCat').value,
+      lat: $('pLat').value, lng: $('pLng').value,
+      cost: $('pCost').value, duration_minutes: $('pDur').value, rating: $('pRate').value
+    };
+    const id = $('pId').value;
+    const r = id ? await api('/admin/places/' + encodeURIComponent(id), 'PUT', body)
+                 : await api('/admin/places', 'POST', body);
+    if (!r.ok) { $('pMsg').textContent = r.data.error || 'Không lưu được'; return; }
+    $('placeDialog').close();
+    loadPlaces(); loadStats();
+  });
+
+  // ---------- Các nút trong bảng ----------
+  document.addEventListener('click', async e => {
+    const b = e.target.closest('[data-act]');
+    if (!b) return;
+    const id = b.dataset.id, act = b.dataset.act;
+
+    if (act === 'toggleUser') { await api(`/admin/users/${encodeURIComponent(id)}/toggle`, 'POST'); loadUsers(); }
+    if (act === 'delUser' && confirm('Xóa tài khoản này và toàn bộ chuyến đi của họ?')) {
+      await api('/admin/users/' + encodeURIComponent(id), 'DELETE'); loadAll();
+    }
+    if (act === 'delTrip' && confirm('Xóa lịch trình này?')) {
+      await api('/trips/' + encodeURIComponent(id), 'DELETE'); loadTrips(); loadStats(); loadUsers();
+    }
+    if (act === 'editPlace') openPlaceForm(places.find(p => p.id === id));
+    if (act === 'delPlace' && confirm('Xóa địa điểm này?')) {
+      const r = await api('/admin/places/' + encodeURIComponent(id), 'DELETE');
+      if (!r.ok) alert(r.data.error || 'Không xóa được');
+      loadPlaces(); loadStats();
+    }
+  });
+
+  // ---------- Chuyển tab ----------
+  document.querySelectorAll('.tab').forEach(btn => btn.addEventListener('click', () => {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('tab-on'));
+    btn.classList.add('tab-on');
+    ['users', 'trips', 'places'].forEach(n => $('tab-' + n).classList.toggle('hidden', n !== btn.dataset.tab));
+  }));
+
+  start();
+</script>
+</body>
+</html>
